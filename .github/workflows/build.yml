@@ -6,10 +6,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      - name: List files
+        run: ls -R
       - name: Set script permissions
-        run: chmod +x build_apk.sh
-
+        run: chmod +x ./build_apk.sh
       - name: Build
-        run: ./build_apk.sh
-
+        run: bash ./build_apk.sh
