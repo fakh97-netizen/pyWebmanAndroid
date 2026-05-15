@@ -10,22 +10,20 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip build-essential git python3-dev libffi-dev libssl-dev libltdl-dev libncurses6 libncursesw6 zlib1g-dev pkg-config autoconf automake libtool openjdk-17-jdk
-          pip3 install --user --upgrade buildozer cython
+          sudo apt install -y build-essential git python3-dev libffi-dev libssl-dev libltdl-dev libncurses6 libncursesw6 zlib1g-dev pkg-config autoconf automake libtool openjdk-17-jdk pipx
+          sudo ln -sf /usr/bin/python3 /usr/bin/python
+          pipx install buildozer
+          pipx install cython
 
-      - name: Auto-accept Android SDK Licenses
-        run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          # This forces yes to all licenses before buildozer triggers its own download
-          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-          echo -e "\n244ac70ef8e40f56572a17f1f464f068124c4c75\n504667f4c0de7af1a06de9f4b1727b84351f2910\n84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-
-      - name: Set script permissions
-        run: chmod +x build_apk.sh
-
-      - name: Build
+      - name: Build with Auto-Accept Licenses
+        env:
+          APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          ./build_apk.sh
+          buildozer android debug
           
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PyWebman-APK
+          path: bin/*.apk
